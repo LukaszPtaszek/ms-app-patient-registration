@@ -1,0 +1,17 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: ms-app-patient-registration
+  data:
+    mongodb:
+#      uri: mongodb://ms-app-patient-registration-mongo-db:27017
+      uri: mongodb://localhost:27017
+      authentication-database: admin
+      username: trcAdmin
+      password: trcAdmin
+#      host: ms-app-patient-registration-mongo-db
+      database: "patient-registration"
+#      options: ""
+      port: 27017

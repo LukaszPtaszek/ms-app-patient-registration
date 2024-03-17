@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+
+  ms-app-patient-registration-mongo-db:
+    image: mongo
+    container_name: ms-app-patient-registration-mongo-db
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    environment:
+      - MONGO_DB_USER=trcAdmin
+      - MONGO_DB_PASSWD=trcAdmin
+      - MONGO_INIT_DATABASE=patient-registration
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    networks:
+      - patient-registration-network
+
+  ms-app-patient-registration:
+    container_name: ms-app-patient-registration
+    extends:
+      file: docker-compose-base.yml
+      service: ms-app-patient-registration
+    networks:
+      - patient-registration-network
+    environment:
+      - SPRING_DATA_MONGODB_AUTHENTICATION-DATABASE=admin
+    depends_on:
+      ms-app-patient-registration-mongo-db:
+        condition: service_started
+
+networks:
+  patient-registration-network:
+    driver: bridge

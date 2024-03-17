@@ -1,0 +1,117 @@
+spring:
+  application:
+    name: ms-api-epg-guidetv
+  jmx:
+    enabled: false
+
+management:
+  endpoint:
+    health:
+      show-details: always
+      group:
+        liveness:
+          include: 'ping'
+        readiness:
+          exclude: 'elasticsearch'
+      probes: # depracated key: management.health.probes.enabled
+        enabled: true
+  health:
+    elasticsearch:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: info, health, prometheus
+### Configuration ###
+mapping:
+  formats:
+    format43: 7
+    format169: 4
+  csa:
+    csa1: 1,132
+    csa2: 2,115,141
+    csa3: 3,101
+    csa4: 4,127
+    csa5: 5,105,119,136,139
+    defaultValue: 1
+  airingAttributes:
+    formatHD: 2
+    format3D: 52
+    format4K: 18
+    primeTime1: 30
+    primeTime2: 29
+    version:
+      vm: 10
+      vost: 14
+  texts:
+    longDescriptionIds: 6,5
+    shortSummaryIds: 2,3
+apiv1:
+  # this is default value for hpic
+  # hpic: url: http://ms-api-epg-read-v1-hpic.pp-itv.geo.francetelecom.fr
+  # default url for hpe2e is:
+  url: http://ms-api-epg-read-v1-hpe2e.pp-itv.geo.francetelecom.fr
+  path: /v1/guidetv/broadcastsByRange
+cache:
+  timeToRefreshInSeconds: 1200
+  timeToLiveInSeconds: 604800
+  statsEnabled: false
+  broadcastsByIdSize: 100
+  broadcastListSize: 10000
+  initial:
+    maxTimeInSeconds: 60
+    parallelism: 8
+  refresh:
+    cron: 0 10,40 3,7-20 * * *
+    parallelism: 8
+    maxDays:
+      past: 7
+      future: 14
+  maxAgeHeaderValue: "600"
+  maxAgeHeaderValueRandomization: 10
+  maxAgeHeaderValueNow: "300"
+  maxAgeHeaderValueNowRandomization: 10
+opentv:
+  host: "http://ms-read-live-hpic.pp-itv.geo.francetelecom.fr"
+  proxy:
+    # for hpic we don't need proxy, but it is needed everywhere else
+    enabled: true
+    host: "proxygroup.itn.ftgroup"
+    port: 8080
+  scheduler:
+    cron: "0 */20 * * * *"
+    zone: "Europe/Paris"
+test:
+  endpoints:
+    enabled: true
+logging:
+  level:
+    com:
+      vo:
+        epg:
+          guidetv:
+            opentv: WARN
+# gzip compression
+server:
+  compression:
+    # set true to enable gzip compression
+    enabled: true
+    # filter which mime types will use the compression (comma separated)
+    mime-types: application/json
+    # minimum size of the response in bytes that will use gzip compression (if less than that then it is not worth using it)
+    min-response-size: 2048
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+version: "v1"
+environment: "hpic"
+
+period:
+  config:
+    maxDays:
+      past: 7
+      future: 14
+
+populateSecondLevelOfCache: "false"

@@ -1,0 +1,206 @@
+openapi: 3.0.2
+info:
+  title: Patient Registration API
+  description: API provided by service ms-app-patient-registration-G01R00C00-SNAPSHOT to add, remove, update, get patients.
+  contact:
+    name: Development team
+    email: patientregistation@gmail.com
+  version: v1
+servers:
+  - url: http://localhost:8085
+    description: Generated server url
+tags:
+  - name: Patients
+    description: Patient Registration Api V1
+paths:
+  /patient/registration/{date}:
+    get:
+      tags:
+        - Fetch patients
+      summary: Get list of patients by date
+      description: Get list of patients by date
+      operationId: getPatientsByDate
+      parameters:
+        - name: date
+          in: path
+          description: Date
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: Page number of patients
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: Size of page of patients
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: List of patients has been found
+          headers:
+            X-Total-Count:
+              description: Header that hints total amount of the items in API
+              style: simple
+              schema:
+                type: integer
+            X-Result-Count:
+              description: Header that hints result amount of the items in API
+              style: simple
+              schema:
+                type: integer
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: List of broadcast has not been found
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '500':
+          description: Internal error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /patient/registration:
+    post:
+      tags:
+        - Insert patient
+      summary: Insert patient
+      description: Insert patient
+      operationId: insertPatient
+      requestBody:
+        description: "Patient object that needs to be added to the database"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientDTO'
+      responses:
+        '201':
+          description: List of patients has been found
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                  $ref: '#/components/schemas/PatientDTO'
+        '400':
+          description: Bad request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '500':
+          description: Internal error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+  /patient/registration/{patientId}:
+    delete:
+      tags:
+        - Delete patient
+      summary: Delete patient by id
+      description: Delete patient by id
+      operationId: deletePatientsById
+      parameters:
+        - name: patientId
+          in: path
+          description: Patient id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Patient has been deleted
+        '400':
+          description: Bad request
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '404':
+          description: Patient has not been found
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+        '500':
+          description: Internal error
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorDTO'
+
+components:
+  schemas:
+    ErrorDTO:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: numerical error code
+          format: int32
+        description:
+          type: string
+          description: message describing the error
+        message:
+          type: string
+          description: error code enum
+        param:
+          type: object
+          description: error parameters, if any
+        stackTrace:
+          type: string
+          description: stack trace, not available in production
+    PatientDTO:
+      required:
+        - firstName
+        - lastName
+        - dateOfBirth
+        - genre
+        - address
+        - zipCode
+        - phone
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: Patient firstName
+        lastName:
+          type: string
+          description: Patient lastName
+        dateOfBirth:
+          type: string
+          description: Patient date of birth
+        gender:
+          type: string
+          description: Gender
+        address:
+          type: string
+          description: Patient address
+        zipCode:
+          type: string
+          description: Patient zip code
+        phone:
+          type: integer
+          description: Patient zip code
+          format: int32

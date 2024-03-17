@@ -1,0 +1,8 @@
+# Release notes
+
+## G01
+
+### G01R00
+
+#### G01R00C00
+* initial release

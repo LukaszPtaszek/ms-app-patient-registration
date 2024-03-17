@@ -1,0 +1,14 @@
+version: "2.1"
+services:
+  ms-app-patient-registration:
+    container_name: ms-app-patient-registration
+    build:
+      context: ..
+      dockerfile: ./Dockerfile
+    image: ms-app-patient-registration:latest
+    ports:
+      - 8085:8085
+    environment:
+      SPRING_DATA_MONGODB_HOSTS: host.docker.internal:27017
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

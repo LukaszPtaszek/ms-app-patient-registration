@@ -1,0 +1,4 @@
+spring:
+  cloud:
+    kubernetes:
+      enabled: false # we don't need checking for configMaps in tests

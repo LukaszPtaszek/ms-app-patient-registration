@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: ms-app-patient-registration
+info:
+  build.application:
+    name: @project.name@
+    suffix: @project.version@
+
+logging:
+  level:
+    com:
+      patient:
+        registration: WARN
+
+springdoc:
+  swagger-ui:
+    enabled: true
+
+version: "v1"
+
