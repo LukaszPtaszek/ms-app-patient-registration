@@ -15,24 +15,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@Testcontainers
 @AutoConfigureMockMvc
 class PatientControllerTest {
 
@@ -45,16 +48,8 @@ class PatientControllerTest {
     @Autowired
     private PatientService patientService;
 
-    @Autowired
+    @MockBean
     private PatientRepositoryImpl patientRepository;
-
-    @Container
-    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:latest"));
-
-    @DynamicPropertySource
-    static void setMongoDBProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-    }
 
     @BeforeEach
     void tearDown() {
@@ -68,8 +63,12 @@ class PatientControllerTest {
     void shouldInsertPatient() throws Exception {
 
         //given
-
+        var patient = getPatient();
         var requestBodyAsJson = getPatientAsJsonRequestBody();
+        when(patientRepository.insertPatient(any()))
+                .thenReturn(patient);
+        when(patientRepository.findAll())
+                .thenReturn(List.of(patient));
 
         //when then
         mockMvc.perform(post("/patient/registration")
@@ -89,7 +88,10 @@ class PatientControllerTest {
                 .extracting(Patient::getFirstName, Patient::getLastName)
                 .containsExactly("Lukasz", "Test");
 
-
+        verify(patientRepository, times(1))
+                .insertPatient(any());
+        verify(patientRepository, times(1))
+                .findAll();
     }
 
     @Epic("Web interface")
@@ -101,13 +103,18 @@ class PatientControllerTest {
 
         //given
         var patient = getPatient();
-        patientRepository.insertPatient(patient);
+        var patients = List.of(patient);
+        when(patientRepository.findByDate(anyString(), anyInt(), anyInt()))
+                .thenReturn(new PageImpl<>(patients));
 
         //when then
         mockMvc.perform(get("/patient/registration/20240310")
                 .queryParam("offset", "0")
                 .queryParam("limit", "5"))
                 .andExpect(status().isOk());
+
+        verify(patientRepository, times(1))
+                .findByDate(anyString(), anyInt(), anyInt());
     }
 
     @SneakyThrows
