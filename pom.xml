@@ -177,13 +177,13 @@
                         </goals>
                         <configuration>
                             <rules>
-<!--                                <rule>-->
-<!--                                    <limits>-->
-<!--                                        <limit>-->
-<!--                                            <minimum>0.5</minimum>-->
-<!--                                        </limit>-->
-<!--                                    </limits>-->
-<!--                                </rule>-->
+                                <!--                                <rule>-->
+                                <!--                                    <limits>-->
+                                <!--                                        <limit>-->
+                                <!--                                            <minimum>0.5</minimum>-->
+                                <!--                                        </limit>-->
+                                <!--                                    </limits>-->
+                                <!--                                </rule>-->
                             </rules>
                         </configuration>
                     </execution>
@@ -196,7 +196,8 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <argLine>
-                        ${surefireArgLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.7/aspectjweaver-1.9.7.jar"
+                        ${surefireArgLine}
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.7/aspectjweaver-1.9.7.jar"
                     </argLine>
                     <properties>
                         <property>
@@ -221,6 +222,33 @@
                     <reportVersion>2.14.0</reportVersion>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.2.0</version> <!-- Use the latest version -->
+                <configuration>
+                    <imageName>lukaszptaszekcod3r/${project.build.finalName}</imageName>
+                    <dockerDirectory>${project.basedir}</dockerDirectory> <!-- Directory containing Dockerfile -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include> <!-- Path to your JAR file -->
+                        </resource>
+                    </resources>
+                    <serverId>docker-hub</serverId> <!-- Server ID from Jenkins credentials -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>
